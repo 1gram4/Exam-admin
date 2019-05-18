@@ -10,4 +10,5 @@ public class answer {
 
     @Column(nullable = false)
     private String answerText;
+
 }
