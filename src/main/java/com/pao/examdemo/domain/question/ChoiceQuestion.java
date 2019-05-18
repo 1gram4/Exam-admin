@@ -3,6 +3,9 @@ package com.pao.examdemo.domain.question;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
+/*
+选择题
+ */
 @Entity
 public class ChoiceQuestion extends Question {
     @Column(nullable = false)

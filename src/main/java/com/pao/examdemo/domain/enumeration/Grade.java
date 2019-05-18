@@ -1,4 +1,4 @@
-package com.pao.examdemo.domain;
+package com.pao.examdemo.domain.enumeration;
 
 /*
     枚举年级类型

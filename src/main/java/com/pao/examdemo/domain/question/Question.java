@@ -1,8 +1,9 @@
 package com.pao.examdemo.domain.question;
 
-import com.pao.examdemo.domain.Grade;
+import com.pao.examdemo.domain.enumeration.Grade;
 import com.pao.examdemo.domain.Image;
 import com.pao.examdemo.domain.KnowledgePoint;
+import com.pao.examdemo.domain.enumeration.Subject;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -16,9 +17,17 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long questionId;
 
+    public Subject getQuestionSubject() {
+        return questionSubject;
+    }
+
+    public void setQuestionSubject(Subject questionSubject) {
+        this.questionSubject = questionSubject;
+    }
+
     /*
-    枚举题目类型:选择，判断，填空，大题目
-     */
+        枚举题目类型:选择，判断，填空，大题目
+         */
     public enum QuestionType{
         CHOICE,T_OR_F,FILL,HUGE
     }
@@ -32,6 +41,10 @@ public class Question {
     //难度系数
     @Column(nullable = false)
     private float difficulty;
+
+    //学科
+    @Column(nullable = false)
+    private Subject questionSubject;
 
     //年级
     @Enumerated(EnumType.STRING)

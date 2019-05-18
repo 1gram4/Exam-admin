@@ -23,10 +23,14 @@ public class RepositoryTest {
     private UserRepository userRepository;
     @Test
     public void userTest(){
-        User user = new User();
-        user.setUserName("paoge");
-        user.setPhoneNumber("1112213");
-        user.setPassWord("12123");
-        userRepository.save(user);
+        if(userRepository.findByUserName("祝文康")!=null){
+            System.out.println(2);
+        }
+        if(userRepository.findByUserName("z")!=null){
+            System.out.println(1);
+        }
+        if(userRepository.findByUserNameAndPassWord("祝文康","123456")!=null){
+            System.out.println("登陆成功");
+        }
     }
 }
