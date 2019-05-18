@@ -9,12 +9,21 @@ public class User {
     @Column(nullable = false)
     private Long userId;
 
+    /*
+    用户名
+     */
     @Column(nullable = false)
     private String userName;
 
+    /*
+    密码的md5值
+     */
     @Column(nullable = false)
     private String passWord;
 
+    /*
+    电话号码
+     */
     @Column(nullable = false)
     private String phoneNumber;
 

@@ -8,6 +8,9 @@ public class KnowledgePoint {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long KnowledgePointId;
 
+    /*
+    知识点名称
+     */
     @Column(nullable = false)
     private String KnowledgePointName;
 
