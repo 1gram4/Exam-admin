@@ -1,5 +1,6 @@
 package com.pao.examdemo.domain.question;
 
+import com.pao.examdemo.domain.Grade;
 import com.pao.examdemo.domain.Image;
 import com.pao.examdemo.domain.KnowledgePoint;
 
@@ -32,15 +33,6 @@ public class Question {
     @Column(nullable = false)
     private float difficulty;
 
-    /*
-    枚举年级类型
-     */
-    public enum Grade {
-        PRIMARY1,PRIMARY2,PRIMARY3,PRIMARY4,PRIMARY5, PRIMARY6,
-        MIDDLE1,MIDDLE2,MIDDLE3,
-        SENIOR1,SENIOR2,SENIOR3
-    }
-
     //年级
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -51,7 +43,7 @@ public class Question {
     private String questionText;
 
     //知识点
-    @OneToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL)
     private Collection<KnowledgePoint> KnowledgePoints;
 
     //题目相关图片
