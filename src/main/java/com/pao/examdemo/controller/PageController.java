@@ -1,21 +1,41 @@
 package com.pao.examdemo.controller;
 
-import com.pao.examdemo.domain.User;
-import com.pao.examdemo.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-@RestController
+import javax.servlet.http.HttpServletRequest;
+
+@Controller
 public class PageController {
-    @Autowired
-    private UserRepository userRepository;
-    @GetMapping(value = "/test")
-    public void test(){
-        User user=new User();
-        user.setUserName("paoge");
-        user.setPhoneNumber("1112213");
-        user.setPassWord("12123");
-        userRepository.save(user);
+
+    @RequestMapping(value = "/loginPage" ,method = RequestMethod.GET)
+    public String loginPage(){
+        return "login";
+    }
+    @RequestMapping(value = "/indexPage")
+    public String indexPage(){
+        return "index";
+    }
+    @RequestMapping(value = "/messagePage")
+    public String messagePage(HttpServletRequest request){
+
+        return "message";
+    }
+    @RequestMapping(value = "/questionsInputPage")
+    public String questionsInputPage(){
+        return "questionsInput";
+    }
+    @RequestMapping(value = "/questionsAdminPage")
+    public String questionsAdmin(){
+        return "questionsAdmin";
+    }
+    @RequestMapping(value = "/paperDetailsPage")
+    public String paperDetails(){
+        return "paperDetails";
+    }
+    @RequestMapping(value="/makePaperPage")
+    public String makePaperPage(){
+        return "makePaper";
     }
 }

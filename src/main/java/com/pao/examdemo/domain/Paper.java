@@ -1,10 +1,10 @@
 package com.pao.examdemo.domain;
 
 import com.pao.examdemo.domain.enumeration.Grade;
-import com.pao.examdemo.domain.question.Question;
+import com.pao.examdemo.domain.enumeration.Subject;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.util.List;
 
 /*
 试卷实体类
@@ -37,18 +37,24 @@ public class Paper {
     试卷年份
      */
     @Column(nullable = false)
-    private String Date;
+    private String date;
 
     /*
-    试卷里包含的题目
+    学科
      */
+    @Column(nullable = false)
+    private Subject paperSubject;
+
+    /*
+        试卷里包含的题目
+         */
     @OneToMany(cascade = CascadeType.ALL)
-    private Collection<Question> questions;
+    private List<Question> questions;
 
     /*
     试卷所属学校
      */
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     private School paperSchool;
 
     public Long getPaperId() {
@@ -84,18 +90,26 @@ public class Paper {
     }
 
     public String getDate() {
-        return Date;
+        return date;
     }
 
     public void setDate(String date) {
-        Date = date;
+        this.date = date;
     }
 
-    public Collection<Question> getQuestions() {
+    public Subject getPaperSubject() {
+        return paperSubject;
+    }
+
+    public void setPaperSubject(Subject paperSubject) {
+        this.paperSubject = paperSubject;
+    }
+
+    public List<Question> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(Collection<Question> questions) {
+    public void setQuestions(List<Question> questions) {
         this.questions = questions;
     }
 

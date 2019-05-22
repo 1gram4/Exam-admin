@@ -1,6 +1,7 @@
 package com.pao.examdemo;
 
 import com.pao.examdemo.domain.User;
+import com.pao.examdemo.domain.enumeration.UserType;
 import com.pao.examdemo.repository.UserRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,14 +24,11 @@ public class RepositoryTest {
     private UserRepository userRepository;
     @Test
     public void userTest(){
-        if(userRepository.findByUserName("祝文康")!=null){
-            System.out.println(2);
-        }
-        if(userRepository.findByUserName("z")!=null){
-            System.out.println(1);
-        }
-        if(userRepository.findByUserNameAndPassWord("祝文康","123456")!=null){
-            System.out.println("登陆成功");
-        }
+        User user=new User();
+        user.setUserType(UserType.KYE_BOARDER);
+        user.setUserName("祝文康");
+        user.setPassWord("123");
+        user.setPhoneNumber("123456");
+        userRepository.save(user);
     }
 }

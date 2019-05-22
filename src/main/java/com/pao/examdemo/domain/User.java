@@ -1,9 +1,13 @@
 package com.pao.examdemo.domain;
 
+import com.pao.examdemo.domain.enumeration.UserType;
+
 import javax.persistence.*;
 
 @Entity
 public class User {
+    public static final String CUR_USER = "currentUser";
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
@@ -27,15 +31,12 @@ public class User {
     @Column(nullable = false)
     private String phoneNumber;
 
-    /**
-     * 枚举用户类型
-     */
-    public enum UserType {
-        KYE_BOARDER, ADMIN  ,SUPER
-    }
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserType userType;
+
+    public static String getCurUser() {
+        return CUR_USER;
+    }
 
     public Long getUserId() {
         return userId;

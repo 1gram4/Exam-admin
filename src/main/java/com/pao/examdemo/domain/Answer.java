@@ -1,10 +1,10 @@
 package com.pao.examdemo.domain;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.util.List;
 
 @Entity
-public class answer {
+public class Answer {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long answerId;
@@ -19,7 +19,7 @@ public class answer {
     答案中可能包含一些图片
      */
     @OneToMany(cascade = CascadeType.ALL)
-    private Collection<Image> answerImages;
+    private List<Image> answerImages;
 
     /*
     答案解释
@@ -31,7 +31,11 @@ public class answer {
     答案解释中可能也包含一些图片
      */
     @OneToMany(cascade = CascadeType.ALL)
-    private Collection<Image> answerExplainImages;
+    private List<Image> answerExplainImages;
+
+    //双向一对一
+    @OneToOne(cascade = CascadeType.ALL ,mappedBy = "questionAnswer")
+    private Question answerQuestion;
 
     public Long getAnswerId() {
         return answerId;
@@ -49,11 +53,11 @@ public class answer {
         this.answerText = answerText;
     }
 
-    public Collection<Image> getAnswerImages() {
+    public List<Image> getAnswerImages() {
         return answerImages;
     }
 
-    public void setAnswerImages(Collection<Image> answerImages) {
+    public void setAnswerImages(List<Image> answerImages) {
         this.answerImages = answerImages;
     }
 
@@ -65,11 +69,19 @@ public class answer {
         this.answerExplain = answerExplain;
     }
 
-    public Collection<Image> getAnswerExplainImages() {
+    public List<Image> getAnswerExplainImages() {
         return answerExplainImages;
     }
 
-    public void setAnswerExplainImages(Collection<Image> answerExplainImages) {
+    public void setAnswerExplainImages(List<Image> answerExplainImages) {
         this.answerExplainImages = answerExplainImages;
+    }
+
+    public Question getAnswerQuestion() {
+        return answerQuestion;
+    }
+
+    public void setAnswerQuestion(Question answerQuestion) {
+        this.answerQuestion = answerQuestion;
     }
 }

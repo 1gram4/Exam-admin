@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="css/questionsInput.css"/>
+    <meta charset="UTF-8">
+    <title>试题录入页面</title>
+</head>
+<body>
+<h1>试题录入</h1>
+<div id="top" >
+    欢迎你<span th:text="${session.currentUser.userName}">XXX</span>
+    <a th:href="@{/api/v1/logout}">注销</a>
+</div>
+<div id="questionsInput">
+    <div>
+        试卷名称: <input id="paperName" type="text">
+    </div>
+    <div>
+        年级:
+        <select id="grade">
+            <option value="PRIMARY1">一年级</option>
+            <option value="PRIMARY2">二年级</option>
+            <option value="PRIMARY3">三年级</option>
+            <option value="PRIMARY4">四年级</option>
+            <option value="PRIMARY5">五年级</option>
+            <option value="PRIMARY6">六年级</option>
+            <option value="MIDDLE1"> 初一</option>
+            <option value="MIDDLE2"> 初二</option>
+            <option value="MIDDLE3"> 初三</option>
+            <option value="SENIOR1"> 高一</option>
+            <option value="SENIOR2"> 高二</option>
+            <option value="SENIOR3"> 高三</option>
+        </select>
+    </div>
+    <div>
+        整体难度：<input id="paperDifficulty" type="range"><span id="showDifficulty"/>
+    </div>
+    <div>
+        试卷年月：<input id="date" type="month">
+    </div>
+    <div>
+        试卷科目:
+        <select id="paperSubject">
+            <option value="CHINESE">语文</option>
+            <option value="MATH">数学</option>
+            <option value="ENGLISH">英语</option>
+            <option value="PHYSICS">物理</option>
+            <option value="CHEMISTRY">化学</option>
+            <option value="BIOLOGY">生物</option>
+            <option value="POLITICS">政治</option>
+            <option value="HISTORY">历史</option>
+            <option value="GEOGRAPHY">地理</option>
+        </select>
+    </div>
+    <div>
+        学校：<input id="paperSchool" type="text">
+    </div>
+    <div>
+        <input type="button" name="popBox" value="弹出框" onclick="popBox()">
+    </div>
+</div>
+
+
+<div id="popLayer"></div>
+<div id="popBox">
+    <div class="close">
+        <a href="javascript:void(0)" onclick="closeBox()">关闭</a>
+    </div>
+    <div class="question-content">
+        <div>
+            问题类型：
+            <select id="questionType">
+                <option value="CHOICE">选择题</option>
+                <option value="FILL">填空题</option>
+                <option value="T_OR_F">判断题</option>
+                <option value="HUGE">大题</option>
+            </select>
+        </div>
+        <div>
+            分值：<input id="score" type="text">分
+        </div>
+        <div>
+            整体难度：<input id="questionDifficulty" type="range"><span id="showQDifficulty"/>
+        </div>
+        <div>
+            题干描述：<input id="questionText" type="text">
+        </div>
+        <div>
+            知识点：<input id="knowledgePoints" type="text">
+        </div>
+        <div>
+            添加题目图片
+        </div>
+        <div>
+            添加答案
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    //动态绑定range值
+    setInterval( function () {
+        $("#showDifficulty").html($("#paperDifficulty").val())
+    }, 50)
+    setInterval( function () {
+        $("#showQDifficulty").html($("#questionDifficulty").val())
+    }, 50)
+    /*点击弹出按钮*/
+    function popBox() {
+        var popBox = document.getElementById("popBox");
+        var popLayer = document.getElementById("popLayer");
+        popBox.style.display = "block";
+        popLayer.style.display = "block";
+    };
+    /*点击关闭按钮*/
+    function closeBox() {
+        var popBox = document.getElementById("popBox");
+        var popLayer = document.getElementById("popLayer");
+        popBox.style.display = "none";
+        popLayer.style.display = "none";
+    }
+</script>
+</html>

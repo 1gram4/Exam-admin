@@ -4,6 +4,12 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/examsys?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: root
     password: Zz199701
+  thymeleaf:
+    mode: LEGACYHTML5
+    encoding: utf-8
+    servlet:
+      content-type: text/html
+    cache: false
   jpa:
     database: mysql
     show-sql: true

@@ -6,27 +6,25 @@ import javax.persistence.*;
 public class KnowledgePoint {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long KnowledgePointId;
+    private Long knowledgePointId;
 
-    /*
-    知识点名称
-     */
+
     @Column(nullable = false)
-    private String KnowledgePointName;
+    private String knowledgePointName;
 
     public Long getKnowledgePointId() {
-        return KnowledgePointId;
+        return knowledgePointId;
     }
 
     public void setKnowledgePointId(Long knowledgePointId) {
-        KnowledgePointId = knowledgePointId;
+        this.knowledgePointId = knowledgePointId;
     }
 
     public String getKnowledgePointName() {
-        return KnowledgePointName;
+        return knowledgePointName;
     }
 
     public void setKnowledgePointName(String knowledgePointName) {
-        KnowledgePointName = knowledgePointName;
+        this.knowledgePointName = knowledgePointName;
     }
 }
