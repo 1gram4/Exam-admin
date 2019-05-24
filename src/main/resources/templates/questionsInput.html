@@ -2,13 +2,14 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 <head>
-    <script src="jquery-3.3.1.min.js"></script>
-    <link rel="stylesheet" href="css/questionsInput.css"/>
+    <script type="text/javascript" src="/static/jquery-3.3.1.min.js" ></script>
+    <link rel="stylesheet" href="/static/css/questionsInput.css"/>
     <meta charset="UTF-8">
     <title>试题录入页面</title>
 </head>
 <body>
 <h1>试题录入</h1>
+<div><a th:href="@{/indexPage}">回到首页</a></div>
 <div id="top" >
     欢迎你<span th:text="${session.currentUser.userName}">XXX</span>
     <a th:href="@{/api/v1/logout}">注销</a>
@@ -57,26 +58,37 @@
     <div>
         学校：<input id="paperSchool" type="text">
     </div>
-    <div>
-        <input type="button" name="popBox" value="弹出框" onclick="popBox()">
+    <div id="question1" onclick="clickQuestion()">
+        题目1：这里预览展示添加的题目，点击后会到弹出框编辑
+    </div>
+    <!--点击这里添加题目-->
+    <div id="addBox">
+        <input type="button" name="popBox" value="添加题目" onclick="popBox()">
     </div>
 </div>
 
 
 <div id="popLayer"></div>
+<!--弹出框里面的东西，添加题目-->
 <div id="popBox">
     <div class="close">
-        <a href="javascript:void(0)" onclick="closeBox()">关闭</a>
+        <a  onclick="closeBox()">关闭</a>
     </div>
     <div class="question-content">
         <div>
             问题类型：
-            <select id="questionType">
-                <option value="CHOICE">选择题</option>
+            <select id="questionType" onchange="qtChange()">
                 <option value="FILL">填空题</option>
+                <option value="CHOICE">选择题</option>
                 <option value="T_OR_F">判断题</option>
                 <option value="HUGE">大题</option>
             </select>
+        </div>
+        <div id="abcd" style="display:none;">
+            <div>A:<input id="A" type="text"></div>
+            <div>B:<input id="B" type="text"></div>
+            <div>C:<input id="C" type="text"></div>
+            <div>D:<input id="D" type="text"></div>
         </div>
         <div>
             分值：<input id="score" type="text">分
@@ -85,21 +97,68 @@
             整体难度：<input id="questionDifficulty" type="range"><span id="showQDifficulty"/>
         </div>
         <div>
-            题干描述：<input id="questionText" type="text">
+            题干描述：<input id="questionText" type="text" >
         </div>
         <div>
             知识点：<input id="knowledgePoints" type="text">
         </div>
         <div>
-            添加题目图片
+            添加题目图片：<input id="images" type="file" multiple>
         </div>
-        <div>
-            添加答案
+        <div id="img1"></div>
+        <div id="answer">
+            <div>
+                添加答案:<input id="questionAnswer" type="text">
+            </div>
+            <div>
+                添加答案图片：<input id="answerImages" type="file" multiple>
+            </div>
+            <div id="img2"></div>
+            <div>
+                添加答案解释:<input id="answerExplain" type="text">
+            </div>
+            <div>
+                添加解释图片：<input id="answerExplainImages" type="file" multiple>
+            </div>
+            <div id="img3"></div>
         </div>
+        <button id="addQuestion" onclick="clickAddQues()">添加题目</button>
     </div>
 </div>
 </body>
 <script>
+    //这两行代码用来控制土图片回显的
+    var j=0
+    imageInputProcess()
+    //paper这个json用来存储试卷信息的
+    var paper={
+        paperName:"测试试卷1",
+        grade:"MIDDLE1",
+        paperDifficulty:0.6,
+        date:"2019",
+        paperSubject:"CHINESE",
+        paperSchool:{
+            schoolName:"上海大学"
+        },
+        questions:[]
+    }
+    //question用来存储一道题目
+    var question={
+        questionType:"CHOICE",
+        score:5,
+        difficulty:0.6,
+        questionSubject:"CHINESE",
+        grade:"MIDDLE1",
+        questionText:"这是题目描述",
+        KnowledgePoints:[],
+        images:[],
+        questionAnswer:{
+            answerText:"这是答案",
+            answerImages:[],
+            answerExplain:"这是答案解释",
+            answerExplainImages:[]
+        }
+    }
     //动态绑定range值
     setInterval( function () {
         $("#showDifficulty").html($("#paperDifficulty").val())
@@ -113,6 +172,7 @@
         var popLayer = document.getElementById("popLayer");
         popBox.style.display = "block";
         popLayer.style.display = "block";
+        //imageInputProcess()     //这行傻逼代码，害老子调了五个小时
     };
     /*点击关闭按钮*/
     function closeBox() {
@@ -120,6 +180,109 @@
         var popLayer = document.getElementById("popLayer");
         popBox.style.display = "none";
         popLayer.style.display = "none";
+    }
+    //当打开弹窗后就运行这个函数，这个函数的目的是将图片打开回显到浏览器
+    function imageInputProcess() {
+        var input1 = $("#images")
+        var input2 = $("#answerImages")
+        var input3 = $("#answerExplainImages")
+        var result
+        if(typeof FileReader==='undefined'){
+            result.innerHTML = "抱歉，你的浏览器不支持 FileReader";
+            input1.setAttribute('disabled','disabled');
+            input2.setAttribute('disabled','disabled');
+            input3.setAttribute('disabled','disabled');
+        }else{
+            input1.on("change",readFile1)
+            input2.on("change",readFile2)
+            input3.on("change",readFile3)
+        }　　　　　//handler
+        function readFile1() {
+            for (var i = 0; i < this.files.length; i++) {
+                if (!this['value'].match(/.jpg|.gif|.png|.bmp/i)) {　　//判断上传文件格式
+                    return alert("上传的图片格式不正确，请重新选择")
+                }
+                var reader = new FileReader();
+                reader.readAsDataURL(this.files[i]);
+                reader.onload = function (e) {
+                    result = '<div style="display: inline ;position: relative" id="result\' + (++j) + \'"><img style="width: 100px;height: 100px" src="' + this.result + '" alt=""/><img src="http://www.iconpng.com/png/sm-reflection-r/button-cross.png" class="delete" onclick="deleteImage(this)"/></div>'
+                    $("#img1").append(result)
+                }
+            }
+        }
+        function readFile2() {
+            for (var i = 0; i < this.files.length; i++) {
+                if (!this['value'].match(/.jpg|.gif|.png|.bmp/i)) {　　//判断上传文件格式
+                    return alert("上传的图片格式不正确，请重新选择")
+                }
+                var reader = new FileReader();
+                reader.readAsDataURL(this.files[i]);
+                reader.onload = function (e) {
+                    result = '<div style="display: inline ;position: relative" id="result\' + (++j) + \'"><img style="width: 100px;height: 100px" src="'+this.result+'" alt=""/><img src="http://www.iconpng.com/png/sm-reflection-r/button-cross.png" class="delete" onclick="deleteImage(this)"/></div>'
+                    $("#img2").append(result)
+                }
+            }
+        }
+        function readFile3() {
+            for (var i = 0; i < this.files.length; i++) {
+                if (!this['value'].match(/.jpg|.gif|.png|.bmp/i)) {　　//判断上传文件格式
+                    return alert("上传的图片格式不正确，请重新选择")
+                }
+                var reader = new FileReader();
+                reader.readAsDataURL(this.files[i]);
+                reader.onload = function (e) {
+                    result = '<div style="display: inline ;position: relative" id="result\' + (++j) + \'"><img style="width: 100px;height: 100px" src="' + this.result + '" alt=""/><img src="http://www.iconpng.com/png/sm-reflection-r/button-cross.png" class="delete" onclick="deleteImage(this)"/></div>'
+                    $("#img3").append(result)
+                }
+            }
+        }
+    }
+    //点击了添加题目，先保存添加的题目信息，这时把弹窗关掉，然后把添加的题目显示到html当中
+    function clickAddQues() {
+        //保存信息到json当中
+        saveQuestion()
+        //清空弹框中input内容
+        $("#popBox input").val("")
+        //清空几个回显image中的内容
+        $("#img1").html("")
+        $("#img2").html("")
+        $("#img3").html("")
+        closeBox()
+        j=0
+    }
+    //将弹出框的内容保存到question中
+    function saveQuestion() {
+        question.questionType=$("#questionType")
+        question.difficulty=$("#questionDifficulty")
+        question.questionSubject=$("#paperSubject")
+        question.grade=$("#grade")
+        //这里暂时只弄一个知识点
+        question.KnowledgePoints.push({knowledgePointName:$("#knowledgePoints")})
+        question.questionText=$("#questionText")
+        question.questionAnswer.answerExplain=$("#answerExplain")
+        question.questionAnswer.answerText=$("#questionAnswer")
+        question.images.push({imagePath:""})
+        question.questionAnswer.answerImages.push({imagePath:"123"})
+        question.questionAnswer.answerExplainImages.push({imagePath:"123"})
+        return question;
+    }
+
+    //点击了题目这里应该弹出框来编辑
+    function clickQuestion() {
+        popBox()
+    }
+    //题型更改
+    function qtChange() {
+        console.log("111")
+        if($("#questionType").val()==='CHOICE')
+            $("#abcd").show()
+        else
+            $("#abcd").hide()
+
+    }
+    //删除图片
+    function deleteImage(t) {
+        $(t).parent().remove()
     }
 </script>
 </html>

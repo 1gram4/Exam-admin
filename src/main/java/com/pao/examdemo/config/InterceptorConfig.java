@@ -14,6 +14,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns("/api/v1/login")
                 .excludePathPatterns("/messagePage")
+                .excludePathPatterns("/static/**") //排除访问static静态文件夹下的静态资源文件
                 .excludePathPatterns("/loginPage")
         ;
         WebMvcConfigurer.super.addInterceptors(registry);
