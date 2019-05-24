@@ -2,7 +2,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 <head>
-    <script type="text/javascript" src="/static/jquery-3.3.1.min.js" ></script>
+    <script type="text/javascript" src="/static/jquery-3.4.1.min.js" ></script>
     <link rel="stylesheet" href="/static/css/questionsInput.css"/>
     <meta charset="UTF-8">
     <title>试题录入页面</title>
@@ -58,13 +58,14 @@
     <div>
         学校：<input id="paperSchool" type="text">
     </div>
-    <div id="question1" onclick="clickQuestion()">
-        题目1：这里预览展示添加的题目，点击后会到弹出框编辑
+    <div id="questions">
+
     </div>
     <!--点击这里添加题目-->
     <div id="addBox">
         <input type="button" name="popBox" value="添加题目" onclick="popBox()">
     </div>
+    <div><button id="submitPaper" onclick="submitPaper()">确认提交试卷</button></div>
 </div>
 
 
@@ -122,7 +123,7 @@
             </div>
             <div id="img3"></div>
         </div>
-        <button id="addQuestion" onclick="clickAddQues()">添加题目</button>
+        <button id="addQuestion" onclick="clickAddQues()">确定添加题目</button>
     </div>
 </div>
 </body>
@@ -145,12 +146,16 @@
     //question用来存储一道题目
     var question={
         questionType:"CHOICE",
+        A:"",
+        B:"",
+        C:"",
+        D:"",
         score:5,
         difficulty:0.6,
         questionSubject:"CHINESE",
         grade:"MIDDLE1",
         questionText:"这是题目描述",
-        KnowledgePoints:[],
+        knowledgePoints:[],
         images:[],
         questionAnswer:{
             answerText:"这是答案",
@@ -205,7 +210,7 @@
                 var reader = new FileReader();
                 reader.readAsDataURL(this.files[i]);
                 reader.onload = function (e) {
-                    result = '<div style="display: inline ;position: relative" id="result\' + (++j) + \'"><img style="width: 100px;height: 100px" src="' + this.result + '" alt=""/><img src="http://www.iconpng.com/png/sm-reflection-r/button-cross.png" class="delete" onclick="deleteImage(this)"/></div>'
+                    result = '<div class="imageContainer"  id="result' + (++j) + '"><img style="width: 100px;height: 100px" src="' + this.result + '" alt=""/><img src="http://www.iconpng.com/png/sm-reflection-r/button-cross.png" class="delete" onclick="deleteImage(this)"/></div>'
                     $("#img1").append(result)
                 }
             }
@@ -218,7 +223,7 @@
                 var reader = new FileReader();
                 reader.readAsDataURL(this.files[i]);
                 reader.onload = function (e) {
-                    result = '<div style="display: inline ;position: relative" id="result\' + (++j) + \'"><img style="width: 100px;height: 100px" src="'+this.result+'" alt=""/><img src="http://www.iconpng.com/png/sm-reflection-r/button-cross.png" class="delete" onclick="deleteImage(this)"/></div>'
+                    result = '<div class="imageContainer" id="result' + (++j) + '"><img style="width: 100px;height: 100px" src="'+this.result+'" alt=""/><img src="http://www.iconpng.com/png/sm-reflection-r/button-cross.png" class="delete" onclick="deleteImage(this)"/></div>'
                     $("#img2").append(result)
                 }
             }
@@ -231,7 +236,7 @@
                 var reader = new FileReader();
                 reader.readAsDataURL(this.files[i]);
                 reader.onload = function (e) {
-                    result = '<div style="display: inline ;position: relative" id="result\' + (++j) + \'"><img style="width: 100px;height: 100px" src="' + this.result + '" alt=""/><img src="http://www.iconpng.com/png/sm-reflection-r/button-cross.png" class="delete" onclick="deleteImage(this)"/></div>'
+                    result = '<div class="imageContainer" id="result' + (++j) + '"><img style="width: 100px;height: 100px" src="' + this.result + '" alt=""/><img src="http://www.iconpng.com/png/sm-reflection-r/button-cross.png" class="delete" onclick="deleteImage(this)"/></div>'
                     $("#img3").append(result)
                 }
             }
@@ -239,8 +244,29 @@
     }
     //点击了添加题目，先保存添加的题目信息，这时把弹窗关掉，然后把添加的题目显示到html当中
     function clickAddQues() {
+        var a=0
+        //判断输入框不能为空，因为这里的display:none也会被选择所以要分开
+        $("#popBox input").not("#images").not("#answerImages").not("#answerExplainImages").each(function () {
+            if($("#questionType").val()=="CHOICE"){
+                if($(this).val()==""){
+                    console.log(this)
+                    alert("输入框不能为空")
+                    a=1
+                    return false
+                }
+            }
+            else {
+                if($(this).parent().parent().attr("id")!="abcd"&&$(this).val()==""){
+                    alert("输入框不能为空")
+                    a=1
+                    return false
+                }
+            }
+        })
+        if(a==1)
+            return
         //保存信息到json当中
-        saveQuestion()
+        paper.questions.push(saveQuestion())
         //清空弹框中input内容
         $("#popBox input").val("")
         //清空几个回显image中的内容
@@ -249,27 +275,54 @@
         $("#img3").html("")
         closeBox()
         j=0
+        //将添加的题目回显到html上
+        var questionShow=paper.questions[paper.questions.length-1]
+        var div='<div style="position: relative" onclick="questionClick()"><span id="qNO">'+paper.questions.length+'</span>题<p>'+questionShow.questionText+'</p></div>'
+        $("#questions").append(div)
     }
     //将弹出框的内容保存到question中
     function saveQuestion() {
-        question.questionType=$("#questionType")
-        question.difficulty=$("#questionDifficulty")
-        question.questionSubject=$("#paperSubject")
-        question.grade=$("#grade")
+        var question1={};
+        $.extend(true,question1,question)
+        question1.questionType=$("#questionType").val()
+        question1.A=$("#A").val()
+        question1.B=$("#B").val()
+        question1.C=$("#C").val()
+        question1.D=$("#D").val()
+        question1.difficulty=$("#questionDifficulty").val()
+        question1.questionSubject=$("#paperSubject").val()
+        question1.grade=$("#grade").val()
         //这里暂时只弄一个知识点
-        question.KnowledgePoints.push({knowledgePointName:$("#knowledgePoints")})
-        question.questionText=$("#questionText")
-        question.questionAnswer.answerExplain=$("#answerExplain")
-        question.questionAnswer.answerText=$("#questionAnswer")
-        question.images.push({imagePath:""})
-        question.questionAnswer.answerImages.push({imagePath:"123"})
-        question.questionAnswer.answerExplainImages.push({imagePath:"123"})
-        return question;
+        question1.knowledgePoints.push({knowledgePointName:$("#knowledgePoints").val()})
+        question1.questionText=$("#questionText").val()
+        question1.questionAnswer.answerExplain=$("#answerExplain").val()
+        question1.questionAnswer.answerText=$("#questionAnswer").val()
+        question1.images.push({imagePath:"123"})
+        question1.questionAnswer.answerImages.push({imagePath:"123"})
+        question1.questionAnswer.answerExplainImages.push({imagePath:"123"})
+        return question1;
     }
 
     //点击了题目这里应该弹出框来编辑
-    function clickQuestion() {
+    function questionClick() {
+        //弹出弹框
         popBox()
+        //将题目回显到上面
+        console.log(parseInt($($(this).children().get(0)).text())-1)
+        var num=parseInt($($(this).children().get(0)).text())-1
+        $("#questionType").val(paper.questions[num].questionType)
+        $("#A").val(paper.questions[num].A)
+        $("#B").val(paper.questions[num].B)
+        $("#C").val(paper.questions[num].C)
+        $("#D").val(paper.questions[num].D)
+        $("#questionDifficulty").val(paper.questions[num].difficulty)
+        $("#paperSubject").val(paper.questions[num].paperSubject)
+        $("#grade").val(paper.questions[num].grade)
+        $("#knowledgePoints").val(paper.questions[num].knowledgePoints[0].knowledgePointName)
+        $("#questionText").val(paper.questions[num].questionText)
+        $("#score").val(paper.questions[num].score)
+        $("#answerExplain").val(paper.questions[num].questionAnswer.answerExplain)
+        $("#questionAnswer").val(paper.questions[num].questionAnswer.answerText)
     }
     //题型更改
     function qtChange() {
@@ -283,6 +336,16 @@
     //删除图片
     function deleteImage(t) {
         $(t).parent().remove()
+    }
+    //确认提交试卷
+    function submitPaper () {
+        paper.date=$("#date").val()
+        paper.grade=$("#grade").val()
+        paper.paperDifficulty=$("#paperDifficulty").val()
+        paper.paperName=$("#paperName").val()
+        paper.paperSchool=$("#paperSchool").val()
+        paper.paperSubject=$("#paperSubject").val()
+        console.log(paper)
     }
 </script>
 </html>
