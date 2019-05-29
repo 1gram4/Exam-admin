@@ -45,7 +45,6 @@ public class Question {
     private Subject questionSubject;
 
     //年级
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Grade grade;
 
@@ -59,7 +58,7 @@ public class Question {
 
     //题目相关图片
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Image> images;
+    private List<QuestionImage> images;
 
     //答案，双向一对一
     @OneToOne(cascade = CascadeType.ALL)
@@ -161,11 +160,11 @@ public class Question {
         this.knowledgePoints = knowledgePoints;
     }
 
-    public List<Image> getImages() {
+    public List<QuestionImage> getImages() {
         return images;
     }
 
-    public void setImages(List<Image> images) {
+    public void setImages(List<QuestionImage> images) {
         this.images = images;
     }
 

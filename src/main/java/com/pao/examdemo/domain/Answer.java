@@ -19,7 +19,7 @@ public class Answer {
     答案中可能包含一些图片
      */
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Image> answerImages;
+    private List<AnswerImage> answerImages;
 
     /*
     答案解释
@@ -31,7 +31,7 @@ public class Answer {
     答案解释中可能也包含一些图片
      */
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Image> answerExplainImages;
+    private List<ExplainImage> answerExplainImages;
 
     //双向一对一
     @OneToOne(cascade = CascadeType.ALL ,mappedBy = "questionAnswer")
@@ -53,11 +53,11 @@ public class Answer {
         this.answerText = answerText;
     }
 
-    public List<Image> getAnswerImages() {
+    public List<AnswerImage> getAnswerImages() {
         return answerImages;
     }
 
-    public void setAnswerImages(List<Image> answerImages) {
+    public void setAnswerImages(List<AnswerImage> answerImages) {
         this.answerImages = answerImages;
     }
 
@@ -69,11 +69,11 @@ public class Answer {
         this.answerExplain = answerExplain;
     }
 
-    public List<Image> getAnswerExplainImages() {
+    public List<ExplainImage> getAnswerExplainImages() {
         return answerExplainImages;
     }
 
-    public void setAnswerExplainImages(List<Image> answerExplainImages) {
+    public void setAnswerExplainImages(List<ExplainImage> answerExplainImages) {
         this.answerExplainImages = answerExplainImages;
     }
 

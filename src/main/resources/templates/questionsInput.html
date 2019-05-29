@@ -2,10 +2,62 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 <head>
-    <script type="text/javascript" src="/static/jquery-3.4.1.min.js" ></script>
-    <link rel="stylesheet" href="/static/css/questionsInput.css"/>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <meta charset="UTF-8">
     <title>试题录入页面</title>
+    <style>
+        /*背景层*/
+        #popLayer {
+            display: none;
+            background-color: #B3B3B3;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 10;
+            -moz-opacity: 0.8;
+            opacity:.80;
+            filter: alpha(opacity=80);/* 只支持IE6、7、8、9 */
+        }
+        /*弹出层*/
+        #popBox {
+            display: none;
+            background-color: #FFFFFF;
+            z-index: 11;
+            width: 400px;
+            height: 500px;
+            position:fixed;
+            top:0;
+            right:0;
+            left:0;
+            bottom:0;
+            margin:auto;
+        }
+        #popBox .close{
+            text-align: right;
+            margin-right: 5px;
+            background-color: #F8F8F8;
+        }
+        /*关闭按钮*/
+        #popBox .close a {
+            text-decoration: none;
+            color: #2D2C3B;
+        }
+        .delete {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            width: 30px;
+            height: 30px;
+        }
+        .imageContainer{
+            display: inline-block ;
+            position: relative;
+            height: 100px;
+            width: 100px;
+        }
+    </style>
 </head>
 <body>
 <h1>试题录入</h1>
@@ -14,7 +66,7 @@
     欢迎你<span th:text="${session.currentUser.userName}">XXX</span>
     <a th:href="@{/api/v1/logout}">注销</a>
 </div>
-<div id="questionsInput">
+<div id="paperMessInput">
     <div>
         试卷名称: <input id="paperName" type="text">
     </div>
@@ -63,7 +115,7 @@
     </div>
     <!--点击这里添加题目-->
     <div id="addBox">
-        <input type="button" name="popBox" value="添加题目" onclick="popBox()">
+        <input type="button" name="popBox" value="添加题目" onclick="addQuestion()">
     </div>
     <div><button id="submitPaper" onclick="submitPaper()">确认提交试卷</button></div>
 </div>
@@ -92,7 +144,7 @@
             <div>D:<input id="D" type="text"></div>
         </div>
         <div>
-            分值：<input id="score" type="text">分
+            分值：<input id="score" type="number">分
         </div>
         <div>
             整体难度：<input id="questionDifficulty" type="range"><span id="showQDifficulty"/>
@@ -123,7 +175,7 @@
             </div>
             <div id="img3"></div>
         </div>
-        <button id="addQuestion" onclick="clickAddQues()">确定添加题目</button>
+        <button id="addQuestion" onclick="confirmAddQuestion()">保存</button><button id="clearBox" onclick="clearBox()">清空</button>
     </div>
 </div>
 </body>
@@ -131,6 +183,11 @@
     //这两行代码用来控制土图片回显的
     var j=0
     imageInputProcess()
+    //这个变量是区别弹框是因为添加打开的还是修改打开的,默认是添加打开的
+    var popAdd = true
+    //这个变量是用来记录点击题目后记录题号de
+    var $questionThis   //点击题目后获得的jquery对象
+    var index = 0
     //paper这个json用来存储试卷信息的
     var paper={
         paperName:"测试试卷1",
@@ -146,10 +203,10 @@
     //question用来存储一道题目
     var question={
         questionType:"CHOICE",
-        A:"",
-        B:"",
-        C:"",
-        D:"",
+        choiceA:"",
+        choiceB:"",
+        choiceC:"",
+        choiceD:"",
         score:5,
         difficulty:0.6,
         questionSubject:"CHINESE",
@@ -242,53 +299,71 @@
             }
         }
     }
-    //点击了添加题目，先保存添加的题目信息，这时把弹窗关掉，然后把添加的题目显示到html当中
-    function clickAddQues() {
-        var a=0
+
+    //点击了保存这里有两种可能，有可能是修改有可能是添加
+    function confirmAddQuestion() {
+        //如果弹框非空空的直接返回
+        if(!popIsEmpty()){
+            if(popAdd){  //添加题目
+                paper.questions.push(saveQuestion())
+                clearBox()//清空box
+                j=0  //j这个全局变量用来绑定图片
+                closeBox()
+                //将添加的题目回显到html上
+                var questionShow=paper.questions[paper.questions.length-1]
+                var div='<div style="position: relative" ><div onclick="questionClick(this)"><span id="qNO">'+paper.questions.length+'</span>题<p>'+questionShow.questionText+'</p></div><img src="http://www.iconpng.com/png/sm-reflection-r/button-cross.png" class="delete" onclick="deleteQuestion(this)"/></div>'
+                $("#questions").append(div)
+            }
+            else{ //修改题目
+                paper.questions[index]=saveQuestion()
+                //将question修改后回显到页面上面
+                $($questionThis.children().get(0)).text(index+1)
+                $($questionThis.children().get(1)).text(paper.questions[index].questionText)
+                clearBox()//清空box
+                j=0  //j这个全局变量用来绑定图片
+                closeBox()
+            }
+        }
+    }
+    //清空box内容
+    function clearBox() {
+        $("#popBox input").val("")
+        $("#img1").html("")
+        $("#img2").html("")
+        $("#img3").html("")
+    }
+    //判断popBox中输入框不能为空
+    function popIsEmpty() {
+        var a=false
         //判断输入框不能为空，因为这里的display:none也会被选择所以要分开
         $("#popBox input").not("#images").not("#answerImages").not("#answerExplainImages").each(function () {
             if($("#questionType").val()=="CHOICE"){
                 if($(this).val()==""){
                     console.log(this)
                     alert("输入框不能为空")
-                    a=1
-                    return false
+                    a=true
+                    return false//这里是跳出for循环
                 }
             }
             else {
                 if($(this).parent().parent().attr("id")!="abcd"&&$(this).val()==""){
                     alert("输入框不能为空")
-                    a=1
+                    a=true
                     return false
                 }
             }
         })
-        if(a==1)
-            return
-        //保存信息到json当中
-        paper.questions.push(saveQuestion())
-        //清空弹框中input内容
-        $("#popBox input").val("")
-        //清空几个回显image中的内容
-        $("#img1").html("")
-        $("#img2").html("")
-        $("#img3").html("")
-        closeBox()
-        j=0
-        //将添加的题目回显到html上
-        var questionShow=paper.questions[paper.questions.length-1]
-        var div='<div style="position: relative" onclick="questionClick()"><span id="qNO">'+paper.questions.length+'</span>题<p>'+questionShow.questionText+'</p></div>'
-        $("#questions").append(div)
+        return a
     }
     //将弹出框的内容保存到question中
     function saveQuestion() {
         var question1={};
         $.extend(true,question1,question)
         question1.questionType=$("#questionType").val()
-        question1.A=$("#A").val()
-        question1.B=$("#B").val()
-        question1.C=$("#C").val()
-        question1.D=$("#D").val()
+        question1.choiceA=$("#A").val()
+        question1.choiceB=$("#B").val()
+        question1.choiceC=$("#C").val()
+        question1.choiceD=$("#D").val()
         question1.difficulty=$("#questionDifficulty").val()
         question1.questionSubject=$("#paperSubject").val()
         question1.grade=$("#grade").val()
@@ -297,32 +372,41 @@
         question1.questionText=$("#questionText").val()
         question1.questionAnswer.answerExplain=$("#answerExplain").val()
         question1.questionAnswer.answerText=$("#questionAnswer").val()
-        question1.images.push({imagePath:"123"})
-        question1.questionAnswer.answerImages.push({imagePath:"123"})
-        question1.questionAnswer.answerExplainImages.push({imagePath:"123"})
+        question1.images.push({imgPath:"123"})
+        question1.questionAnswer.answerImages.push({imgPath:"123"})
+        question1.questionAnswer.answerExplainImages.push({imgPath:"123"})
         return question1;
     }
 
-    //点击了题目这里应该弹出框来编辑
-    function questionClick() {
+    //点击添加题目触发事件
+    function addQuestion() {
         //弹出弹框
         popBox()
-        //将题目回显到上面
-        console.log(parseInt($($(this).children().get(0)).text())-1)
-        var num=parseInt($($(this).children().get(0)).text())-1
-        $("#questionType").val(paper.questions[num].questionType)
-        $("#A").val(paper.questions[num].A)
-        $("#B").val(paper.questions[num].B)
-        $("#C").val(paper.questions[num].C)
-        $("#D").val(paper.questions[num].D)
-        $("#questionDifficulty").val(paper.questions[num].difficulty)
-        $("#paperSubject").val(paper.questions[num].paperSubject)
-        $("#grade").val(paper.questions[num].grade)
-        $("#knowledgePoints").val(paper.questions[num].knowledgePoints[0].knowledgePointName)
-        $("#questionText").val(paper.questions[num].questionText)
-        $("#score").val(paper.questions[num].score)
-        $("#answerExplain").val(paper.questions[num].questionAnswer.answerExplain)
-        $("#questionAnswer").val(paper.questions[num].questionAnswer.answerText)
+        //将判别弹框弹出的bool类型置为add
+        popAdd = true
+    }
+    //点击了题目这里应该弹出框来编辑
+    function questionClick(that) {
+        //弹出弹框
+        popBox()
+        $questionThis=$(that)
+        //设置弹出类型
+        popAdd=false
+        //将题目回显到弹框上面
+        index=parseInt($($(that).children().get(0)).text())-1
+        $("#questionType").val(paper.questions[index].questionType)
+        $("#A").val(paper.questions[index].A)
+        $("#B").val(paper.questions[index].B)
+        $("#C").val(paper.questions[index].C)
+        $("#D").val(paper.questions[index].D)
+        $("#questionDifficulty").val(paper.questions[index].difficulty)
+        $("#paperSubject").val(paper.questions[index].paperSubject)
+        $("#grade").val(paper.questions[index].grade)
+        $("#knowledgePoints").val(paper.questions[index].knowledgePoints[0].knowledgePointName)
+        $("#questionText").val(paper.questions[index].questionText)
+        $("#score").val(paper.questions[index].score)
+        $("#answerExplain").val(paper.questions[index].questionAnswer.answerExplain)
+        $("#questionAnswer").val(paper.questions[index].questionAnswer.answerText)
     }
     //题型更改
     function qtChange() {
@@ -333,19 +417,74 @@
             $("#abcd").hide()
 
     }
+    //删除题目
+    function deleteQuestion(t) {
+        var message=confirm("你确定要删除吗")
+        if(message==true){
+            //$(t).parent().remove()  //这行代码又tm改了劳资5个小时，我操他妈隔壁
+            //然后还要从questions数组将题删掉
+            var num= parseInt($($(t).prev().children().get(0)).text())-1
+            paper.questions.splice(num,1)
+            //将后面的题目序号都-1
+            //我要学vue.js，这样操控dom谁顶的住呀
+            $($($(t).parent().nextAll().children().get(0)).children().get(0)).text(parseInt($($($(t).parent().nextAll().children().get(0)).children().get(0)).text())-1)
+            $(t).parent().remove()  //应该写在这里，弟弟
+        }
+        else if(message==false)
+            return
+    }
     //删除图片
     function deleteImage(t) {
-        $(t).parent().remove()
+        var message=confirm("你确定要删除吗")
+        if(message==true){
+            $(t).parent().remove()
+        }
+        else if(message==false)
+            return
     }
     //确认提交试卷
+    function paperMessIsEmpty() {
+        var a=false
+        //检查paperinput非空
+        $("#paperMessInput input").each(function () {
+            if($(this).val()==""){
+                alert("输入框不能为空")
+                a = true
+                return false
+            }
+        })
+        return a
+    }
     function submitPaper () {
-        paper.date=$("#date").val()
-        paper.grade=$("#grade").val()
-        paper.paperDifficulty=$("#paperDifficulty").val()
-        paper.paperName=$("#paperName").val()
-        paper.paperSchool=$("#paperSchool").val()
-        paper.paperSubject=$("#paperSubject").val()
-        console.log(paper)
+        if(!paperMessIsEmpty()){
+            paper.date=$("#date").val()
+            paper.grade=$("#grade").val()
+            paper.paperDifficulty=$("#paperDifficulty").val()
+            paper.paperName=$("#paperName").val()
+            paper.paperSchool.schoolName=$("#paperSchool").val()
+            paper.paperSubject=$("#paperSubject").val()
+            //开始ajax上传paper内容，图片上传我先不搞
+            $.ajax({
+                url: '/api/v1/addPaper',
+                type:'POST',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(paper),
+                dataType: "json",
+                async: false,
+                success: function (responseStr) {
+                    if(responseStr.status===0){
+                        console.log("成功"+responseStr);
+                        window.location.href = '/indexPage'
+                    }else{
+                        alert("失败第"+responseStr.result)
+                        console.log("失败"+responseStr.result);
+                    }
+                },
+                error : function(responseStr) {
+                    console.log("error"+responseStr);
+                }
+            });
+        }
     }
 </script>
 </html>
