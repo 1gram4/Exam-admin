@@ -5,4 +5,5 @@ import com.pao.examdemo.exception.SavePaperException;
 
 public interface PaperService {
     public boolean savePaper(Paper paper) throws SavePaperException;
+    //public Paper generatePaperAuto();
 }

@@ -1,19 +1,218 @@
-<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+<!DOCTYPE HTML>
+<html  lang="en" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>试题管理平台首页</title>
-
+    <meta charset="UTF-8"/>
+    <title>后台首页</title>
+    <link rel="stylesheet" href="/static/admindemo/styles/style.css" type="text/css"/>
+    <link rel="stylesheet" href="/static/css/questionsInput.css" type="text/css">
+    <script src="/static/admindemo/scripts/libs/modernizr/modernizr.js" type="text/javascript"></script>
+    <script src="/static/admindemo/scripts/config.js" type="text/javascript"></script>
+    <link href="/static/ueditor/themes/default/css/umeditor.css" type="text/css" rel="stylesheet">
+    <script type="text/javascript" src="/static/ueditor/third-party/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/static/ueditor/umeditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/static/ueditor/umeditor.min.js"></script>
+    <script type="text/javascript" src="/static/ueditor/lang/zh-cn/zh-cn.js"></script>
+    <script src="/static/js/questionsInput.js" type="text/javascript"></script>
 </head>
 <body>
-<h1>试题管理平台首页</h1>
-<div id="top" >
-    欢迎你<span th:text="${session.currentUser.userName}">XXX</span>
-    <a th:href="@{/api/v1/logout}">注销</a>
-</div>
-<a th:href="@{/questionsInputPage}">试题录入</a>
-<a th:href="@{/questionsAdminPage}">试题管理</a>
-</body>
+<header id="header">
+    <hgroup>
+        <h1 class="site_title"><a th:href="@{/indexPage}">首页</a></h1>
+        <h2 class="section_title">试题管理系统</h2><div class="btn_view_site"><a th:href="@{/api/v1/logout}">注销</a></div>
+    </hgroup>
+</header> <!-- end of header bar -->
+<section id="secondary_bar">
+    <div class="user">
+        <p>欢迎你 &nbsp;&nbsp;<span th:text="${session.currentUser.userName}">XXX</span></p>
+        <!-- <a class="logout_user" href="#" title="Logout">Logout</a> -->
+    </div>
+    <div class="breadcrumbs_container">
+        <article class="breadcrumbs"><a href="index.html">后台首页</a><div class="breadcrumb_divider"></div><a class="current">首页信息</a></article>
+    </div>
+</section><!-- end of secondary bar -->
+<aside id="sidebar" class="column">
+    <form class="quick_search">
+        <input type="text" value="Quick Search" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
+    </form>
+    <hr/>
+    <h3><a th:href="@{/questionsInputPage}">试题入库</a></h3>
+    <h3><a th:href="@{/questionsAdminPage}">试题管理</a></h3>
+    <h3>生成试卷</h3>
+    <ul class="toggle">
+        <li><font class="ficomoon icon-bbs"></font><a th:href="@{/makePaperAutoPage}">自动组卷</a></li>
+        <li><font class="ficomoon icon-circle"></font><a th:href="@{/makePaperPage}">手动组卷</a></li>
+    </ul>
 
+    <h3></h3>
+    <ul class="toggle">
+        <li><font class="ficomoon icon-menu"></font><a href="extend_menu.html">菜单管理</a>
+            <menu class="children dn">
+                <dl>
+                    <dd><a href="extend_menu_add.html">添加菜单</a></dd>
+                </dl>
+            </menu>
+        </li>
+        <li><font class="ficomoon icon-log"></font><a href="#">操作日志</a></li>
+        <li><font class="ficomoon icon-word"></font><a href="#">敏感词管理</a></li>
+    </ul>
+    <footer>
+        <hr />
+        <p><strong>Copyright &copy; 2014 Pwstrick</strong></p>
+    </footer>
+</aside><!-- end of sidebar -->
+<section id="main" class="column main_shadow">
+    <h4 class="alert_info">欢迎来到试题管理系统，请开始愉快的使用把</h4>
+    <article class="module width_full">
+        <header><h3>试题入库</h3></header>
+        <div class="module_content">
+            <div id="paperMessInput">
+                <fieldset style="float: left;width: 75%;margin-right: 4px">
+                    <label>试卷名称</label>
+                    <input id="paperName" type="text">
+                </fieldset>
+
+                <fieldset style="width: 20%;float: left">
+                    <label>学校</label>
+                    <input id="paperSchool" type="text">
+                </fieldset>
+
+                <fieldset style="width:20%; float:left;margin-right: 4px"> <!-- to make two field float next to one another, adjust values accordingly -->
+                    <label>年级</label>
+                    <select id="grade" style="width:92%;">
+                        <option value="PRIMARY1">一年级</option>
+                        <option value="PRIMARY2">二年级</option>
+                        <option value="PRIMARY3">三年级</option>
+                        <option value="PRIMARY4">四年级</option>
+                        <option value="PRIMARY5">五年级</option>
+                        <option value="PRIMARY6">六年级</option>
+                        <option value="MIDDLE1"> 初一</option>
+                        <option value="MIDDLE2"> 初二</option>
+                        <option value="MIDDLE3"> 初三</option>
+                        <option value="SENIOR1"> 高一</option>
+                        <option value="SENIOR2"> 高二</option>
+                        <option value="SENIOR3"> 高三</option>
+                    </select>
+                </fieldset>
+
+                <fieldset style="width:20%; float:left;margin-right: 4px "> <!-- to make two field float next to one another, adjust values accordingly -->
+                    <label>试卷科目</label>
+                    <select id="paperSubject" style="width: 92%;">
+                        <option value="CHINESE">语文</option>
+                        <option value="MATH">数学</option>
+                        <option value="ENGLISH">英语</option>
+                        <option value="PHYSICS">物理</option>
+                        <option value="CHEMISTRY">化学</option>
+                        <option value="BIOLOGY">生物</option>
+                        <option value="POLITICS">政治</option>
+                        <option value="HISTORY">历史</option>
+                        <option value="GEOGRAPHY">地理</option>
+                    </select>
+                </fieldset>
+
+                <fieldset style="width: 20%;float: left;margin-right: 4px">
+                    <label>试卷年月</label>
+                    <input id="date" type="month">
+                </fieldset>
+
+                <fieldset style="width: 20%;float: left">
+                    <label>整体难度</label>
+                    <input id="paperDifficulty" type="range"><span style="margin-left: 20px;font-size: 18px" id="showDifficulty"/>
+                </fieldset>
+
+                <div id="questions">
+
+                </div>
+                <!--点击这里添加题目-->
+                <div id="addBox">
+                    <input class="button gray" type="button" name="popBox" value="添加题目" onclick="addQuestion()">
+                </div>
+                <div></div>
+            </div>
+            <div id="popLayer"></div>
+            <!--弹出框里面的东西，添加题目-->
+            <div id="popBox">
+                <div class="close">
+                    <a  onclick="closeBox()">关闭</a>
+                </div>
+                <article class="module width_full">
+                    <header><h3>添加题目</h3></header>
+                    <div class="module_content">
+                        <fieldset>
+                            <label>问题类型</label>
+                            <select id="questionType" onchange="qtChange()">
+                                <option value="FILL">填空题</option>
+                                <option value="CHOICE">选择题</option>
+                                <option value="T_OR_F">判断题</option>
+                                <option value="HUGE">大题</option>
+                            </select>
+                        </fieldset>
+                        <div id="abcd" style="display:none;">
+                            <fieldset>
+                                <label>A:</label>
+                                <input id="A" type="text">
+                            </fieldset>
+                            <fieldset>
+                                <label>B:</label>
+                                <input id="B" type="text">
+                            </fieldset>
+                            <fieldset>
+                                <label>C:</label>
+                                <input id="C" type="text">
+                            </fieldset>
+                            <fieldset>
+                                <label>D:</label>
+                                <input id="D" type="text">
+                            </fieldset>
+                        </div>
+                        <fieldset>
+                            <label>分值</label>
+                            <input id="score" type="number">
+                        </fieldset>
+                        <fieldset>
+                            <label>难度</label>
+                            <input id="questionDifficulty" type="range"><span id="showQDifficulty"/>
+                        </fieldset>
+                        <div>
+                            <label>题干描述</label>
+                            <script type="text/plain" id="questionText" style="width:800px;height:240px;">
+                                <p>这里我可以写一些输入提示</p>
+                            </script>
+                            <script type="text/javascript">
+                            //实例化编辑器
+                            var um = UM.getEditor('questionText');
+                            </script>
+                        </div>
+                        <fieldset>
+                            <label>知识点</label>
+                            <input id="knowledgePoints" type="text">
+                        </fieldset>
+                        <fieldset>
+                            <label>添加答案</label>
+                            <textarea rows="3" id="questionAnswer"></textarea>
+                        </fieldset>
+                        <fieldset>
+                            <label>添加答案解析</label>
+                            <textarea rows="3" id="answerExplain"></textarea>
+                        </fieldset>
+                        <div class="clear"></div>
+                    </div>
+                    <footer>
+                        <div class="submit_link">
+                            <button id="addQuestion" class="alt_btn" onclick="confirmAddQuestion()">保存</button>
+                            <button id="clearBox" onclick="clearBox()">清空</button>
+                        </div>
+                    </footer>
+                </article>
+            </div>
+        </div>
+        <footer>
+            <div class="submit_link">
+                <button id="submitPaper" onclick="submitPaper()">确认提交试卷</button>
+            </div>
+        </footer>
+    </article>
+</section>
+<script src="/static/admindemo/scripts/libs/require/require.js" type="text/javascript" data-main="/static/admindemo/scripts/app/index/main"></script>
+</body>
 </html>

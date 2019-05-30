@@ -38,7 +38,7 @@ public class Question {
 
     //难度系数
     @Column(nullable = false)
-    private float difficulty;
+    private int difficulty;
 
     //学科
     @Column(nullable = false)
@@ -120,11 +120,11 @@ public class Question {
         this.score = score;
     }
 
-    public float getDifficulty() {
+    public int getDifficulty() {
         return difficulty;
     }
 
-    public void setDifficulty(float difficulty) {
+    public void setDifficulty(int difficulty) {
         this.difficulty = difficulty;
     }
 

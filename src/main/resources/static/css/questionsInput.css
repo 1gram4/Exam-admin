@@ -17,8 +17,9 @@
     display: none;
     background-color: #FFFFFF;
     z-index: 11;
-    width: 400px;
-    height: 500px;
+    width: 900px;
+    height: 600px;
+    overflow: auto;
     position:fixed;
     top:0;
     right:0;

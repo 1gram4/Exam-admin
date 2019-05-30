@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="/static/js/jquery-3.4.1.min.js" ></script>
+    <title>试题管理平台登录界面</title>
+</head>
+<body>
+<h1>试题管理平台登录</h1>
+<div id="login" >
+    <div>
+        用户名：<input type="text" id="userName" >
+    </div>
+    <div>
+        密码：<input type="text" id="passWord">
+    </div>
+
+    <button style="display: block" id="submit"  onclick="loginClick()">登录</button>
+</div>
+</body>
+<script>
+function loginClick() {
+    $.ajax({
+        type: "POST",
+        url: "/api/v1/login",
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(getJasonData()),
+        dataType: "json",
+        async: false,
+        success: function (message) {
+            if (message.status===0) {
+                window.location.href = '/indexPage'
+            }
+            else {
+                alert(message.result);
+            }
+        },
+        error: function (message) {
+            alert("提交数据失败")
+        }
+    });
+}
+function getJasonData() {
+    var json={
+        userName:$("#userName").val(),
+        passWord:$("#passWord").val()
+    }
+    return json
+}
+</script>
+</html>

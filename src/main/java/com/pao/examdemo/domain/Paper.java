@@ -31,7 +31,7 @@ public class Paper {
     试卷难度系数
      */
     @Column(nullable = false)
-    private float paperDifficulty;
+    private int paperDifficulty;
 
     /*
     试卷年份
@@ -81,11 +81,11 @@ public class Paper {
         this.grade = grade;
     }
 
-    public float getPaperDifficulty() {
+    public int getPaperDifficulty() {
         return paperDifficulty;
     }
 
-    public void setPaperDifficulty(float paperDifficulty) {
+    public void setPaperDifficulty(int paperDifficulty) {
         this.paperDifficulty = paperDifficulty;
     }
 

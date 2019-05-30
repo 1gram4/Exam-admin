@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>手动组卷</title>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <style>/*背景层*/
+    #popLayer {
+        display: none;
+        background-color: #B3B3B3;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 10;
+        -moz-opacity: 0.8;
+        opacity:.80;
+        filter: alpha(opacity=80);/* 只支持IE6、7、8、9 */
+    }
+    /*弹出层*/
+    #popBox {
+        display: none;
+        background-color: #FFFFFF;
+        z-index: 11;
+        width: 400px;
+        height: 500px;
+        position:fixed;
+        top:0;
+        right:0;
+        left:0;
+        bottom:0;
+        margin:auto;
+    }
+    #popBox .close{
+        text-align: right;
+        margin-right: 5px;
+        background-color: #F8F8F8;
+    }
+    /*关闭按钮*/
+    #popBox .close a {
+        text-decoration: none;
+        color: #2D2C3B;
+    }
+    .delete {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 30px;
+        height: 30px;
+    }
+    .imageContainer{
+        display: inline-block ;
+        position: relative;
+        height: 100px;
+        width: 100px;
+    }</style>
+</head>
+<body>
+<h1>手动组装试卷</h1>
+<div id="top" >
+    欢迎你<span th:text="${session.currentUser.userName}">XXX</span>
+    <a th:href="@{/api/v1/logout}">注销</a>
+</div>
+<div id="paperMessInput">
+    <div>
+        试卷名称: <input id="paperName" type="text">
+    </div>
+    <div>
+        年级:
+        <select id="grade">
+            <option value="PRIMARY1">一年级</option>
+            <option value="PRIMARY2">二年级</option>
+            <option value="PRIMARY3">三年级</option>
+            <option value="PRIMARY4">四年级</option>
+            <option value="PRIMARY5">五年级</option>
+            <option value="PRIMARY6">六年级</option>
+            <option value="MIDDLE1"> 初一</option>
+            <option value="MIDDLE2"> 初二</option>
+            <option value="MIDDLE3"> 初三</option>
+            <option value="SENIOR1"> 高一</option>
+            <option value="SENIOR2"> 高二</option>
+            <option value="SENIOR3"> 高三</option>
+        </select>
+    </div>
+    <div>
+        整体难度：<input id="paperDifficulty" type="range"><span id="showDifficulty"/>
+    </div>
+    <div>
+        试卷科目:
+        <select id="paperSubject">
+            <option value="CHINESE">语文</option>
+            <option value="MATH">数学</option>
+            <option value="ENGLISH">英语</option>
+            <option value="PHYSICS">物理</option>
+            <option value="CHEMISTRY">化学</option>
+            <option value="BIOLOGY">生物</option>
+            <option value="POLITICS">政治</option>
+            <option value="HISTORY">历史</option>
+            <option value="GEOGRAPHY">地理</option>
+        </select>
+    </div>
+    <div>
+        总分：<input id="totalScore" type="number">
+    </div>
+    <div id="questions">
+
+    </div>
+    <!--点击这里添加题目-->
+    <div id="addBox">
+        <input type="button" name="popBox" value="添加题目" onclick="addQuestion()">
+    </div>
+    <div><button id="generatePaper" onclick="generatePaper()">生成试卷</button></div>
+</div>
+
+<div id="popLayer"></div>
+<!--弹出框里面的东西，添加题目-->
+<div id="popBox">
+    <div class="close">
+        <a  onclick="closeBox()">关闭</a>
+    </div>
+    <div class="question-content">
+        <div>
+            问题类型：
+            <select id="questionType">
+                <option value="FILL">填空题</option>
+                <option value="CHOICE">选择题</option>
+                <option value="T_OR_F">判断题</option>
+                <option value="HUGE">大题</option>
+            </select>
+        </div>
+        <div>
+            分值：<input id="score" type="number">分
+        </div>
+        <div>
+            难度：<input id="questionDifficulty" type="range"><span id="showQDifficulty"/>
+        </div>
+        <div id="questionList">
+
+        </div>
+        <button id="addQuestion" onclick="findQuestions()">查询</button><button id="clearBox" onclick="clearBox()">清空</button>
+    </div>
+</div>
+
+</body>
+<script>
+    //动态绑定range值
+    setInterval( function () {
+        $("#showDifficulty").html($("#paperDifficulty").val())
+    }, 50)
+    setInterval( function () {
+        $("#showQDifficulty").html($("#questionDifficulty").val())
+    }, 50)
+    //生成试卷
+    function generatePaper(){
+
+    }
+    /*点击弹出按钮*/
+    function popBox() {
+        var popBox = document.getElementById("popBox");
+        var popLayer = document.getElementById("popLayer");
+        popBox.style.display = "block";
+        popLayer.style.display = "block";
+        //imageInputProcess()     //这行傻逼代码，害老子调了五个小时
+    };
+    /*点击关闭按钮*/
+    function closeBox() {
+        var popBox = document.getElementById("popBox");
+        var popLayer = document.getElementById("popLayer");
+        popBox.style.display = "none";
+        popLayer.style.display = "none";
+    }
+    //点击添加题目触发事件
+    function addQuestion() {
+        //弹出弹框
+        popBox()
+    }
+    //清空box内容
+    function clearBox() {
+        $("#popBox input").val("")
+    }
+    //查找题目
+    function findQuestions() {
+
+    }
+</script>
+</html>

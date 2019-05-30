@@ -38,4 +38,8 @@ public class PageController {
     public String makePaperPage(){
         return "makePaper";
     }
+    @RequestMapping(value="/makePaperAutoPage")
+    public String makePaperAutoPage(){
+        return "makePaperAuto";
+    }
 }
